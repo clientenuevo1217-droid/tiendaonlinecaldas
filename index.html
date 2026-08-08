@@ -2352,7 +2352,7 @@ function formatName(nombre) {
 // ============================================================
 function renderUrgentes() {
   const urgentes = clientes
-    .filter(c => getUrgencia(c.dias) === 'urgente' || getUrgencia(c.dias) === 'vencido')
+    .filter(c => getUrgencia(c.dias) === 'urgente')
     .sort((a,b) => a.dias - b.dias)
     .slice(0, 15);
 
@@ -2532,8 +2532,7 @@ function crearTransaccion(clienteId, clienteNombre, productoId) {
     clienteId, clienteNombre,
     productoId: p.id, productoNombre: p.nombre,
     costo: p.costo, precio: p.cliente, ganancia: p.cliente - p.costo,
-    fecha: new Date().toISOString(),
-    _mod: Date.now()
+    fecha: new Date().toISOString()
   };
   transacciones.unshift(tx);
   guardarTransaccionesStorage();
@@ -2542,27 +2541,27 @@ function crearTransaccion(clienteId, clienteNombre, productoId) {
 
 let mnRegistrandoTx = false;
 function registrarTransaccion() {
-  if (mnRegistrandoTx) return; // evita doble registro por doble clic/tap
+  if (mnRegistrandoTx) return;
   const clienteId = parseInt(document.getElementById('tx-cliente').value);
   const productoId = parseInt(document.getElementById('tx-producto').value);
   const cliente = clientes.find(c => c.id === clienteId);
   if (!cliente || !productoId) { showToast('⚠️ Selecciona cliente y producto'); return; }
   mnRegistrandoTx = true;
+  setTimeout(() => { mnRegistrandoTx = false; }, 2000);
   crearTransaccion(clienteId, cliente.nombre, productoId);
   renderCaja();
   showToast('✅ Movimiento registrado');
-  setTimeout(() => { mnRegistrandoTx = false; }, 1200);
 }
 
 let mnRegistrandoVenta = false;
 function registrarVentaCliente() {
-  if (mnRegistrandoVenta) return; // evita doble registro por doble clic/tap
   if (!clienteActivo) return;
+  if (mnRegistrandoVenta) return; // evita duplicar si se toca dos veces seguidas
   const productoId = parseInt(document.getElementById('modal-tx-producto').value);
   const dias = parseInt(document.getElementById('modal-tx-dias').value) || 0;
   if (!productoId) { showToast('⚠️ Selecciona un producto'); return; }
   mnRegistrandoVenta = true;
-  setTimeout(() => { mnRegistrandoVenta = false; }, 1200);
+  setTimeout(() => { mnRegistrandoVenta = false; }, 2000);
   const tx = crearTransaccion(clienteActivo.id, clienteActivo.nombre, productoId);
   if (!clienteActivo.vence) clienteActivo.vence = ymdSumarDias(hoyYMD(), clienteActivo.dias || 0);
   clienteActivo.vence = ymdSumarDias(clienteActivo.vence, dias);
@@ -2865,7 +2864,6 @@ function guardarEdicionTransaccion() {
   t.costo    = costo;
   t.precio   = precio;
   t.ganancia = precio - costo;
-  t._mod = Date.now();
   if (fecha) {
     const horaOriginal = (t.fecha || '').split('T')[1] || '00:00:00.000Z';
     t.fecha = fecha + 'T' + horaOriginal;
@@ -3728,7 +3726,9 @@ function guardarClientesExtra() {
 // ============================================================
 // AGREGAR CLIENTE
 // ============================================================
+let mnAgregandoCliente = false;
 function agregarCliente() {
+  if (mnAgregandoCliente) return;
   const nombre = document.getElementById('nuevo-nombre').value.trim().toUpperCase();
   const tel = document.getElementById('nuevo-tel').value.trim();
   const servicio = document.getElementById('nuevo-servicio').value;
@@ -3738,6 +3738,9 @@ function agregarCliente() {
   const cuenta = document.getElementById('nuevo-cuenta').value;
 
   if (!nombre) { showToast('⚠️ Ingresa el nombre'); return; }
+
+  mnAgregandoCliente = true;
+  setTimeout(() => { mnAgregandoCliente = false; }, 2000);
 
   let dias = duracion;
   let vence = ymdSumarDias(hoyYMD(), duracion);
