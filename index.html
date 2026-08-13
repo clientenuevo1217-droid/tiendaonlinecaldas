@@ -4622,7 +4622,7 @@ function mostrarAlertaUrgentes(opts) {
 
   const vencidos = clientes.filter(c=>c.dias<0).sort((a,b)=>a.dias-b.dias);
   const hoy      = clientes.filter(c=>c.dias===0);
-  const proximos = clientes.filter(c=>c.dias>=1 && c.dias<=7).sort((a,b)=>a.dias-b.dias);
+  const proximos = clientes.filter(c=>c.dias>=1 && c.dias<=3).sort((a,b)=>a.dias-b.dias);
   const total    = clientes.length;
 
   const firma = `${vencidos.length}-${hoy.length}-${proximos.length}-${total}`;
@@ -4685,7 +4685,7 @@ function mostrarAlertaUrgentes(opts) {
     html += hoy.map(c=>filaHtml(c,'hoy')).join('');
   }
   if (proximos.length) {
-    html += `<div class="alerta-grupo hoy" style="margin-top:${(vencidos.length||hoy.length)?'14px':'0'};color:var(--naranja)">🟠 Próximos a vencer, ≤7 días (${proximos.length})</div>`;
+    html += `<div class="alerta-grupo hoy" style="margin-top:${(vencidos.length||hoy.length)?'14px':'0'};color:var(--naranja)">🟠 Próximos a vencer, ≤3 días (${proximos.length})</div>`;
     html += proximos.map(c=>filaHtml(c,'proximo')).join('');
   }
   if (!vencidos.length && !hoy.length && !proximos.length) {
